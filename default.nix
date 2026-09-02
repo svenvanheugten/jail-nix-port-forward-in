@@ -56,7 +56,7 @@ in
 
       (add-runtime ''
         ${hostDir}=$(${mktemp} -d)
-        ${socat} UNIX-LISTEN:"''$${hostDir}/sock",fork,max-children=${toString maxConnections},mode=600 TCP:127.0.0.1:${port} &
+        ${socat} UNIX-LISTEN:"''$${hostDir}/sock",fork,max-children=${toString maxConnections},mode=600 TCP:127.0.0.1:${port} >/dev/null 2>&1 &
         ${hostPid}=$!
         for _ in $(${seq} 100); do
           [ -S "''$${hostDir}/sock" ] && break
@@ -71,7 +71,7 @@ in
       '')
 
       (wrap-entry (entry: ''
-        ${socat} TCP-LISTEN:${port},bind=127.0.0.1,reuseaddr,fork UNIX-CONNECT:${sock} &
+        ${socat} TCP-LISTEN:${port},bind=127.0.0.1,reuseaddr,fork UNIX-CONNECT:${sock} >/dev/null 2>&1 &
         jail_pid=$!
         trap 'kill "$jail_pid" 2>/dev/null || true' EXIT
         ${entry}
