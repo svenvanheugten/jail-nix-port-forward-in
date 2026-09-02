@@ -36,3 +36,7 @@ Usage:
     };
 }
 ```
+
+The port must be in `1024..65535`. The forwarder listens on the same port number
+inside the jail, and the jail holds no capabilities, so it cannot bind a
+privileged port there.

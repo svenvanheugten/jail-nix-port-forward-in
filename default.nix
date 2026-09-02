@@ -20,10 +20,18 @@ in
     port':
     let
       port =
-        if pkgs.lib.isInt port' && port' > 0 && port' < 65536 then
+        if pkgs.lib.isInt port' && port' >= 1024 && port' < 65536 then
           toString port'
+        else if pkgs.lib.isInt port' && port' > 0 && port' < 1024 then
+          throw ''
+            port-forward-in ${toString port'}: privileged ports are not supported.
+
+            The forwarder listens on the same port number inside the jail, and the
+            jail has no CAP_NET_BIND_SERVICE, so binding ${toString port'} there
+            would fail at runtime. Use a port in 1024..65535.
+          ''
         else
-          throw "port-forward-in: expected an integer TCP port in 1..65535, got ${
+          throw "port-forward-in: expected an integer TCP port in 1024..65535, got ${
             pkgs.lib.generators.toPretty { } port'
           }";
       sock = "/run/lo-fwd-${port}.sock";
